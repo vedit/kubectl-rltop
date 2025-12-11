@@ -30,7 +30,16 @@ type CombinedNodeData struct {
 }
 
 // RunNode executes the node command
-func RunNode(ctx context.Context, clientset kubernetes.Interface, metricsClient metricsclientset.Interface, labelSelector string, nodeNames []string, showCapacity bool, sortBy string, noHeaders bool) error {
+func RunNode(
+	ctx context.Context,
+	clientset kubernetes.Interface,
+	metricsClient metricsclientset.Interface,
+	labelSelector string,
+	nodeNames []string,
+	showCapacity bool,
+	sortBy string,
+	noHeaders bool,
+) error {
 	// Check if Metrics API is available
 	if err := pkg.CheckMetricsAPIAvailable(ctx, clientset); err != nil {
 		return fmt.Errorf("metrics API not available: %w\nPlease ensure metrics-server is installed in your cluster", err)
@@ -109,7 +118,12 @@ func RunNode(ctx context.Context, clientset kubernetes.Interface, metricsClient 
 }
 
 // combineNodeMetricsAndResources merges node metrics with aggregated pod resources
-func combineNodeMetricsAndResources(metrics []pkg.NodeMetrics, resources map[string]*pkg.NodeAggregatedResources, nodes map[string]*corev1.Node, showCapacity bool) []CombinedNodeData {
+func combineNodeMetricsAndResources(
+	metrics []pkg.NodeMetrics,
+	resources map[string]*pkg.NodeAggregatedResources,
+	nodes map[string]*corev1.Node,
+	showCapacity bool,
+) []CombinedNodeData {
 	combined := make([]CombinedNodeData, 0, len(metrics))
 
 	for _, m := range metrics {
@@ -222,9 +236,11 @@ func printNodeTable(data []CombinedNodeData, noHeaders bool) {
 	}
 }
 
+const unknownValue = "<unknown>"
+
 // parseCPUValueForNode parses CPU string to float64 for node calculations (handles "m" suffix)
 func parseCPUValueForNode(cpuStr string) float64 {
-	if cpuStr == "" || cpuStr == "-" || cpuStr == "<unknown>" {
+	if cpuStr == "" || cpuStr == "-" || cpuStr == unknownValue {
 		return 0
 	}
 	// Remove "m" suffix and convert to float
@@ -235,23 +251,23 @@ func parseCPUValueForNode(cpuStr string) float64 {
 
 // parseMemoryValueForNode parses memory string to bytes for node calculations
 func parseMemoryValueForNode(memStr string) int64 {
-	if memStr == "" || memStr == "-" || memStr == "<unknown>" {
+	if memStr == "" || memStr == "-" || memStr == unknownValue {
 		return 0
 	}
 	// Simple parsing - convert common units to bytes
 	if strings.HasSuffix(memStr, "Gi") {
 		var value float64
-		fmt.Sscanf(memStr, "%fGi", &value)
+		_, _ = fmt.Sscanf(memStr, "%fGi", &value)
 		return int64(value * 1024 * 1024 * 1024)
 	}
 	if strings.HasSuffix(memStr, "Mi") {
 		var value float64
-		fmt.Sscanf(memStr, "%fMi", &value)
+		_, _ = fmt.Sscanf(memStr, "%fMi", &value)
 		return int64(value * 1024 * 1024)
 	}
 	if strings.HasSuffix(memStr, "Ki") {
 		var value float64
-		fmt.Sscanf(memStr, "%fKi", &value)
+		_, _ = fmt.Sscanf(memStr, "%fKi", &value)
 		return int64(value * 1024)
 	}
 	return 0
@@ -328,14 +344,12 @@ Examples:
 			if err != nil {
 				errMsg := err.Error()
 				if strings.Contains(errMsg, "exec plugin") && strings.Contains(errMsg, "apiVersion") {
-					return fmt.Errorf(`failed to load kubeconfig: %w
-
-Your kubeconfig uses an exec plugin with an outdated API version.
-To fix this, update your kubeconfig by running:
-  kubectl config view --raw > ~/.kube/config.new
-  mv ~/.kube/config.new ~/.kube/config
-
-Or regenerate your kubeconfig using your cloud provider's CLI tool.`, err)
+					return fmt.Errorf("failed to load kubeconfig: %w. "+
+						"Your kubeconfig uses an exec plugin with an outdated API version. "+
+						"To fix this, update your kubeconfig by running: "+
+						"kubectl config view --raw > ~/.kube/config.new && "+
+						"mv ~/.kube/config.new ~/.kube/config. "+
+						"Or regenerate your kubeconfig using your cloud provider's CLI tool", err)
 				}
 				return fmt.Errorf("failed to load kubeconfig: %w", err)
 			}
@@ -345,17 +359,14 @@ Or regenerate your kubeconfig using your cloud provider's CLI tool.`, err)
 			if err != nil {
 				errMsg := err.Error()
 				if strings.Contains(errMsg, "exec plugin") && strings.Contains(errMsg, "apiVersion") {
-					return fmt.Errorf(`failed to create kubernetes client: %w
-
-Your kubeconfig uses an exec plugin with an outdated API version (v1alpha1).
-This version of kubectl-rltop requires exec plugins to use v1beta1 or v1.
-
-To fix this, update your kubeconfig:
-  1. Run: kubectl config view --raw > ~/.kube/config.new
-  2. Check the file and update any exec plugin apiVersion from v1alpha1 to v1beta1
-  3. Replace: mv ~/.kube/config.new ~/.kube/config
-
-Or regenerate your kubeconfig using your cloud provider's CLI tool (e.g., aws eks update-kubeconfig, gcloud container clusters get-credentials).`, err)
+					return fmt.Errorf("failed to create kubernetes client: %w. "+
+						"Your kubeconfig uses an exec plugin with an outdated API version (v1alpha1). "+
+						"This version of kubectl-rltop requires exec plugins to use v1beta1 or v1. "+
+						"To fix this, update your kubeconfig: "+
+						"1. Run: kubectl config view --raw > ~/.kube/config.new "+
+						"2. Check the file and update any exec plugin apiVersion from v1alpha1 to v1beta1 "+
+						"3. Replace: mv ~/.kube/config.new ~/.kube/config. "+
+						"Or regenerate your kubeconfig using your cloud provider's CLI tool", err)
 				}
 				return fmt.Errorf("failed to create kubernetes client: %w", err)
 			}
@@ -375,11 +386,16 @@ Or regenerate your kubeconfig using your cloud provider's CLI tool (e.g., aws ek
 	}
 
 	// Add all flags matching kubectl top node
-	cmd.Flags().StringVarP(&labelSelector, "selector", "l", "", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
-	cmd.Flags().BoolVar(&showCapacity, "show-capacity", false, "Print node resources based on Capacity instead of Allocatable(default) of the nodes.")
-	cmd.Flags().StringVar(&sortBy, "sort-by", "", "If non-empty, sort nodes list using specified field. The field can be either 'cpu' or 'memory'.")
-	cmd.Flags().BoolVar(&noHeaders, "no-headers", false, "If present, print output without headers.")
-	cmd.Flags().BoolVar(&useProtocolBuffers, "use-protocol-buffers", true, "Enables using protocol-buffers to access Metrics API.")
+	cmd.Flags().StringVarP(&labelSelector, "selector", "l", "",
+		"Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
+	cmd.Flags().BoolVar(&showCapacity, "show-capacity", false,
+		"Print node resources based on Capacity instead of Allocatable(default) of the nodes.")
+	cmd.Flags().StringVar(&sortBy, "sort-by", "",
+		"If non-empty, sort nodes list using specified field. The field can be either 'cpu' or 'memory'.")
+	cmd.Flags().BoolVar(&noHeaders, "no-headers", false,
+		"If present, print output without headers.")
+	cmd.Flags().BoolVar(&useProtocolBuffers, "use-protocol-buffers", true,
+		"Enables using protocol-buffers to access Metrics API.")
 
 	return cmd
 }

@@ -217,7 +217,7 @@ func TestPrintNodeTable(t *testing.T) {
 
 			printNodeTable(data, tt.noHeaders)
 
-			w.Close()
+			_ = w.Close()
 			os.Stdout = oldStdout
 
 			buf := make([]byte, 1024)

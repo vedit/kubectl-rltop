@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -21,7 +21,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: "1.25"
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5
@@ -31,23 +31,3 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Calculate checksums for Krew manifest
-        run: |
-          echo "Calculating SHA256 checksums for Krew manifest..."
-          for file in dist/kubectl-rl-top-*.tar.gz dist/kubectl-rl-top-*.zip; do
-            if [ -f "$file" ]; then
-              sha256=$(sha256sum "$file" | cut -d' ' -f1)
-              filename=$(basename "$file")
-              echo "$filename: $sha256"
-              echo "$filename|$sha256" >> checksums.txt
-            fi
-          done
-          cat checksums.txt
-
-      - name: Upload checksums
-        uses: actions/upload-artifact@v4
-        with:
-          name: checksums
-          path: checksums.txt
-

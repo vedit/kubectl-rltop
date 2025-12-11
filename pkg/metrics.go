@@ -19,7 +19,13 @@ type PodMetrics struct {
 }
 
 // GetPodMetrics fetches pod metrics from the Metrics API
-func GetPodMetrics(ctx context.Context, metricsClient metricsclientset.Interface, namespace string, labelSelector, fieldSelector string, podNames []string) ([]PodMetrics, error) {
+func GetPodMetrics(
+	ctx context.Context,
+	metricsClient metricsclientset.Interface,
+	namespace string,
+	labelSelector, fieldSelector string,
+	podNames []string,
+) ([]PodMetrics, error) {
 	var podMetricsList *metricsv1beta1.PodMetricsList
 	var err error
 

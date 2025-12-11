@@ -115,7 +115,8 @@ func TestCalculateNodePercentages(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cpuPercent, memoryPercent := CalculateNodePercentages(tt.node, tt.cpuUsageMilli, tt.memoryUsageBytes, tt.showCapacity)
+			cpuPercent, memoryPercent := CalculateNodePercentages(
+				tt.node, tt.cpuUsageMilli, tt.memoryUsageBytes, tt.showCapacity)
 			if cpuPercent != tt.expectedCPU {
 				t.Errorf("CalculateNodePercentages() cpuPercent = %v, want %v", cpuPercent, tt.expectedCPU)
 			}
@@ -393,19 +394,23 @@ func TestAggregatePodResourcesByNode(t *testing.T) {
 				}
 
 				if !actual.CPURequest.Equal(expected.CPURequest) {
-					t.Errorf("AggregatePodResourcesByNode() node %s CPURequest = %v, want %v", nodeName, actual.CPURequest, expected.CPURequest)
+					t.Errorf("AggregatePodResourcesByNode() node %s CPURequest = %v, want %v",
+						nodeName, actual.CPURequest, expected.CPURequest)
 				}
 
 				if !actual.CPULimit.Equal(expected.CPULimit) {
-					t.Errorf("AggregatePodResourcesByNode() node %s CPULimit = %v, want %v", nodeName, actual.CPULimit, expected.CPULimit)
+					t.Errorf("AggregatePodResourcesByNode() node %s CPULimit = %v, want %v",
+						nodeName, actual.CPULimit, expected.CPULimit)
 				}
 
 				if !actual.MemoryRequest.Equal(expected.MemoryRequest) {
-					t.Errorf("AggregatePodResourcesByNode() node %s MemoryRequest = %v, want %v", nodeName, actual.MemoryRequest, expected.MemoryRequest)
+					t.Errorf("AggregatePodResourcesByNode() node %s MemoryRequest = %v, want %v",
+						nodeName, actual.MemoryRequest, expected.MemoryRequest)
 				}
 
 				if !actual.MemoryLimit.Equal(expected.MemoryLimit) {
-					t.Errorf("AggregatePodResourcesByNode() node %s MemoryLimit = %v, want %v", nodeName, actual.MemoryLimit, expected.MemoryLimit)
+					t.Errorf("AggregatePodResourcesByNode() node %s MemoryLimit = %v, want %v",
+						nodeName, actual.MemoryLimit, expected.MemoryLimit)
 				}
 			}
 		})

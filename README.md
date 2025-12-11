@@ -289,6 +289,38 @@ make lint-fix
 ./kubectl-rltop version
 ```
 
+## Releases
+
+Releases are automated using [GoReleaser](https://goreleaser.com/) and [krew-release-bot](https://krew.sigs.k8s.io/docs/developer-guide/release/automating-updates/).
+
+### Setting up krew-release-bot
+
+To automate plugin updates in the krew-index repository:
+
+1. Install the [krew-release-bot GitHub App](https://github.com/apps/krew-release-bot) on your repository
+2. Grant it access to create pull requests in the `kubernetes-sigs/krew-index` repository
+3. The bot will automatically detect new git tags (e.g., `v1.0.0`) and create PRs to update the plugin in krew-index
+
+When you push a new tag:
+- GoReleaser creates the GitHub release with binaries
+- krew-release-bot detects the tag and creates a PR to krew-index with updated manifest
+- The PR is automatically tested and merged (usually within 5 minutes for trivial version bumps)
+
+### Creating a Release
+
+1. Update the version in `VERSION` file
+2. Update `plugin.yaml` with the new version (the bot will update SHA256 checksums automatically)
+3. Commit and push the changes
+4. Create and push a git tag:
+   ```bash
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+5. The release workflow will automatically:
+   - Build binaries for all platforms
+   - Create a GitHub release
+   - krew-release-bot will create a PR to krew-index
+
 ## Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

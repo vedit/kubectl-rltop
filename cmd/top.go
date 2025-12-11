@@ -26,7 +26,15 @@ type CombinedPodData struct {
 }
 
 // RunPod executes the pod command
-func RunPod(ctx context.Context, clientset kubernetes.Interface, metricsClient metricsclientset.Interface, namespace, labelSelector, fieldSelector string, podNames []string, sortBy string, noHeaders bool) error {
+func RunPod(
+	ctx context.Context,
+	clientset kubernetes.Interface,
+	metricsClient metricsclientset.Interface,
+	namespace, labelSelector, fieldSelector string,
+	podNames []string,
+	sortBy string,
+	noHeaders bool,
+) error {
 	// Check if Metrics API is available
 	if err := pkg.CheckMetricsAPIAvailable(ctx, clientset); err != nil {
 		return fmt.Errorf("metrics API not available: %w\nPlease ensure metrics-server is installed in your cluster", err)
@@ -186,13 +194,6 @@ func combineMetricsAndResources(metrics []pkg.PodMetrics, resources []pkg.PodRes
 	return combined
 }
 
-func getOrDefault(value, defaultValue string) string {
-	if value == "" {
-		return defaultValue
-	}
-	return value
-}
-
 // printTable prints the combined pod data in a formatted table
 func printTable(data []CombinedPodData, noHeaders bool) {
 	// Calculate column widths
@@ -264,7 +265,7 @@ func parseCPUValue(cpuStr string) float64 {
 	// Remove "m" suffix and convert to float
 	cpuStr = strings.TrimSuffix(cpuStr, "m")
 	var value float64
-	fmt.Sscanf(cpuStr, "%f", &value)
+	_, _ = fmt.Sscanf(cpuStr, "%f", &value)
 	return value
 }
 
@@ -276,17 +277,17 @@ func parseMemoryValue(memStr string) int64 {
 	// Simple parsing - convert common units to bytes
 	if strings.HasSuffix(memStr, "Gi") {
 		var value float64
-		fmt.Sscanf(memStr, "%fGi", &value)
+		_, _ = fmt.Sscanf(memStr, "%fGi", &value)
 		return int64(value * 1024 * 1024 * 1024)
 	}
 	if strings.HasSuffix(memStr, "Mi") {
 		var value float64
-		fmt.Sscanf(memStr, "%fMi", &value)
+		_, _ = fmt.Sscanf(memStr, "%fMi", &value)
 		return int64(value * 1024 * 1024)
 	}
 	if strings.HasSuffix(memStr, "Ki") {
 		var value float64
-		fmt.Sscanf(memStr, "%fKi", &value)
+		_, _ = fmt.Sscanf(memStr, "%fKi", &value)
 		return int64(value * 1024)
 	}
 	return 0
@@ -356,14 +357,12 @@ Examples:
 				// Provide helpful error message for common exec plugin issues
 				errMsg := err.Error()
 				if strings.Contains(errMsg, "exec plugin") && strings.Contains(errMsg, "apiVersion") {
-					return fmt.Errorf(`failed to load kubeconfig: %w
-
-Your kubeconfig uses an exec plugin with an outdated API version.
-To fix this, update your kubeconfig by running:
-  kubectl config view --raw > ~/.kube/config.new
-  mv ~/.kube/config.new ~/.kube/config
-
-Or regenerate your kubeconfig using your cloud provider's CLI tool.`, err)
+					return fmt.Errorf("failed to load kubeconfig: %w. "+
+						"Your kubeconfig uses an exec plugin with an outdated API version. "+
+						"To fix this, update your kubeconfig by running: "+
+						"kubectl config view --raw > ~/.kube/config.new && "+
+						"mv ~/.kube/config.new ~/.kube/config. "+
+						"Or regenerate your kubeconfig using your cloud provider's CLI tool", err)
 				}
 				return fmt.Errorf("failed to load kubeconfig: %w", err)
 			}
@@ -373,17 +372,14 @@ Or regenerate your kubeconfig using your cloud provider's CLI tool.`, err)
 			if err != nil {
 				errMsg := err.Error()
 				if strings.Contains(errMsg, "exec plugin") && strings.Contains(errMsg, "apiVersion") {
-					return fmt.Errorf(`failed to create kubernetes client: %w
-
-Your kubeconfig uses an exec plugin with an outdated API version (v1alpha1).
-This version of kubectl-rltop requires exec plugins to use v1beta1 or v1.
-
-To fix this, update your kubeconfig:
-  1. Run: kubectl config view --raw > ~/.kube/config.new
-  2. Check the file and update any exec plugin apiVersion from v1alpha1 to v1beta1
-  3. Replace: mv ~/.kube/config.new ~/.kube/config
-
-Or regenerate your kubeconfig using your cloud provider's CLI tool (e.g., aws eks update-kubeconfig, gcloud container clusters get-credentials).`, err)
+					return fmt.Errorf("failed to create kubernetes client: %w. "+
+						"Your kubeconfig uses an exec plugin with an outdated API version (v1alpha1). "+
+						"This version of kubectl-rltop requires exec plugins to use v1beta1 or v1. "+
+						"To fix this, update your kubeconfig: "+
+						"1. Run: kubectl config view --raw > ~/.kube/config.new "+
+						"2. Check the file and update any exec plugin apiVersion from v1alpha1 to v1beta1 "+
+						"3. Replace: mv ~/.kube/config.new ~/.kube/config. "+
+						"Or regenerate your kubeconfig using your cloud provider's CLI tool", err)
 				}
 				return fmt.Errorf("failed to create kubernetes client: %w", err)
 			}
@@ -392,10 +388,9 @@ Or regenerate your kubeconfig using your cloud provider's CLI tool (e.g., aws ek
 			if err != nil {
 				errMsg := err.Error()
 				if strings.Contains(errMsg, "exec plugin") && strings.Contains(errMsg, "apiVersion") {
-					return fmt.Errorf(`failed to create metrics client: %w
-
-Your kubeconfig uses an exec plugin with an outdated API version.
-See the error above for instructions on how to fix this.`, err)
+					return fmt.Errorf("failed to create metrics client: %w. "+
+						"Your kubeconfig uses an exec plugin with an outdated API version. "+
+						"See the error above for instructions on how to fix this", err)
 				}
 				return fmt.Errorf("failed to create metrics client: %w", err)
 			}
@@ -405,19 +400,33 @@ See the error above for instructions on how to fix this.`, err)
 				ctx = context.Background()
 			}
 
-			return RunPod(ctx, clientset, metricsClient, namespace, labelSelector, fieldSelector, podNames, sortBy, noHeaders)
+			return RunPod(
+				ctx, clientset, metricsClient,
+				namespace, labelSelector, fieldSelector,
+				podNames, sortBy, noHeaders,
+			)
 		},
 	}
 
 	// Add all flags matching kubectl top pods
 	cmd.Flags().StringVarP(&namespace, "namespace", "n", "", "Namespace to query (default: all namespaces)")
-	cmd.Flags().BoolVarP(&allNamespaces, "all-namespaces", "A", false, "If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even if specified with --namespace.")
-	cmd.Flags().StringVarP(&labelSelector, "selector", "l", "", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
-	cmd.Flags().StringVar(&fieldSelector, "field-selector", "", "Selector (field query) to filter on, supports '=', '==', and '!='.(e.g. --field-selector key1=value1,key2=value2). The server only supports a limited number of field queries per type.")
-	cmd.Flags().StringVar(&sortBy, "sort-by", "", "If non-empty, sort pods list using specified field. The field can be either 'cpu' or 'memory'.")
-	cmd.Flags().BoolVar(&noHeaders, "no-headers", false, "If present, print output without headers.")
-	cmd.Flags().BoolVar(&containers, "containers", false, "If present, print usage of containers within a pod.")
-	cmd.Flags().BoolVar(&useProtocolBuffers, "use-protocol-buffers", true, "Enables using protocol-buffers to access Metrics API.")
+	cmd.Flags().BoolVarP(&allNamespaces, "all-namespaces", "A", false,
+		"If present, list the requested object(s) across all namespaces. "+
+			"Namespace in current context is ignored even if specified with --namespace.")
+	cmd.Flags().StringVarP(&labelSelector, "selector", "l", "",
+		"Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
+	cmd.Flags().StringVar(&fieldSelector, "field-selector", "",
+		"Selector (field query) to filter on, supports '=', '==', and '!='. "+
+			"(e.g. --field-selector key1=value1,key2=value2). "+
+			"The server only supports a limited number of field queries per type.")
+	cmd.Flags().StringVar(&sortBy, "sort-by", "",
+		"If non-empty, sort pods list using specified field. The field can be either 'cpu' or 'memory'.")
+	cmd.Flags().BoolVar(&noHeaders, "no-headers", false,
+		"If present, print output without headers.")
+	cmd.Flags().BoolVar(&containers, "containers", false,
+		"If present, print usage of containers within a pod.")
+	cmd.Flags().BoolVar(&useProtocolBuffers, "use-protocol-buffers", true,
+		"Enables using protocol-buffers to access Metrics API.")
 
 	return cmd
 }

@@ -31,7 +31,12 @@ type NodeAggregatedResources struct {
 }
 
 // GetNodeMetrics fetches node metrics from the Metrics API
-func GetNodeMetrics(ctx context.Context, metricsClient metricsclientset.Interface, labelSelector string, nodeNames []string) ([]NodeMetrics, error) {
+func GetNodeMetrics(
+	ctx context.Context,
+	metricsClient metricsclientset.Interface,
+	labelSelector string,
+	nodeNames []string,
+) ([]NodeMetrics, error) {
 	nodeMetricsList, err := metricsClient.MetricsV1beta1().NodeMetricses().List(ctx, metav1.ListOptions{
 		LabelSelector: labelSelector,
 	})
@@ -72,7 +77,13 @@ func GetNodeMetrics(ctx context.Context, metricsClient metricsclientset.Interfac
 
 // GetNodeResources fetches node capacity and allocatable resources
 // Returns a map of node name to Node object
-func GetNodeResources(ctx context.Context, clientset kubernetes.Interface, labelSelector string, nodeNames []string, showCapacity bool) (map[string]*corev1.Node, error) {
+func GetNodeResources(
+	ctx context.Context,
+	clientset kubernetes.Interface,
+	labelSelector string,
+	nodeNames []string,
+	showCapacity bool,
+) (map[string]*corev1.Node, error) {
 	nodeList, err := clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{
 		LabelSelector: labelSelector,
 	})
@@ -104,7 +115,10 @@ func GetNodeResources(ctx context.Context, clientset kubernetes.Interface, label
 }
 
 // AggregatePodResourcesByNode groups pods by node and aggregates their resource requests and limits
-func AggregatePodResourcesByNode(ctx context.Context, clientset kubernetes.Interface) (map[string]*NodeAggregatedResources, error) {
+func AggregatePodResourcesByNode(
+	ctx context.Context,
+	clientset kubernetes.Interface,
+) (map[string]*NodeAggregatedResources, error) {
 	// Get all pods across all namespaces
 	podList, err := clientset.CoreV1().Pods("").List(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -169,7 +183,12 @@ func AggregatePodResourcesByNode(ctx context.Context, clientset kubernetes.Inter
 }
 
 // CalculateNodePercentages calculates CPU and memory percentages based on allocatable or capacity
-func CalculateNodePercentages(node *corev1.Node, cpuUsageMilli int64, memoryUsageBytes int64, showCapacity bool) (cpuPercent, memoryPercent string) {
+func CalculateNodePercentages(
+	node *corev1.Node,
+	cpuUsageMilli int64,
+	memoryUsageBytes int64,
+	showCapacity bool,
+) (cpuPercent, memoryPercent string) {
 	var cpuTotal, memoryTotal resource.Quantity
 
 	if showCapacity {

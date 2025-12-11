@@ -24,7 +24,13 @@ type PodResources struct {
 }
 
 // GetPodResources fetches pod resources (requests and limits) from pod specifications
-func GetPodResources(ctx context.Context, clientset kubernetes.Interface, namespace string, labelSelector, fieldSelector string, podNames []string) ([]PodResources, error) {
+func GetPodResources(
+	ctx context.Context,
+	clientset kubernetes.Interface,
+	namespace string,
+	labelSelector, fieldSelector string,
+	podNames []string,
+) ([]PodResources, error) {
 	var podList *corev1.PodList
 	var err error
 
