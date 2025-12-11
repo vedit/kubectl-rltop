@@ -110,6 +110,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl version --client
+
       - name: Install krew
         run: |
           set -x
@@ -123,12 +130,12 @@ jobs:
           echo "$HOME/.krew/bin" >> $GITHUB_PATH
           # Verify installation
           export PATH="$HOME/.krew/bin:$PATH"
-          krew version
+          kubectl krew version
 
       - name: Validate plugin manifest
         run: |
           export PATH="$HOME/.krew/bin:$PATH"
-          $HOME/.krew/bin/krew plugin lint plugin.yaml
+          kubectl krew plugin lint plugin.yaml
 
   integration-test:
     name: Integration Tests
