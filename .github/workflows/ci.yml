@@ -21,7 +21,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: "1.25"
 
       - name: Cache Go modules
         uses: actions/cache@v4
@@ -55,13 +55,15 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: "1.25"
+
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
-          args: --timeout=5m
+        run: golangci-lint run --timeout=5m
 
   build:
     name: Build
@@ -80,9 +82,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: "1.25"
 
       - name: Build
+        shell: bash
         env:
           GOOS: ${{ matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'darwin' || 'windows' }}
           GOARCH: ${{ matrix.goarch }}
@@ -97,9 +100,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: kubectl-rl-top-${{ matrix.os }}-${{ matrix.goarch }}
-          path: |
-            kubectl-rl-top
-            kubectl-rl-top.exe
+          path: ${{ matrix.os == 'windows-latest' && 'kubectl-rl-top.exe' || 'kubectl-rl-top' }}
           if-no-files-found: error
 
   validate-krew:
@@ -122,7 +123,9 @@ jobs:
           echo "$HOME/.krew/bin" >> $GITHUB_PATH
 
       - name: Validate plugin manifest
-        run: krew plugin lint plugin.yaml
+        run: |
+          export PATH="$HOME/.krew/bin:$PATH"
+          krew plugin lint plugin.yaml
 
   integration-test:
     name: Integration Tests
@@ -134,7 +137,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version: "1.25"
 
       - name: Install k3s
         run: |
@@ -161,4 +164,3 @@ jobs:
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           go test -v -tags=integration ./test/integration/... -timeout 10m
-

@@ -147,10 +147,10 @@ func TestNodeCommand_AggregatedResources(t *testing.T) {
 
 	// Verify percentages are shown
 	if !strings.Contains(output, "CPU%") {
-		t.Errorf("Output should contain CPU% column\nOutput: %s", output)
+		t.Errorf("Output should contain CPU%% column\nOutput: %s", output)
 	}
 	if !strings.Contains(output, "MEMORY%") {
-		t.Errorf("Output should contain MEMORY% column\nOutput: %s", output)
+		t.Errorf("Output should contain MEMORY%% column\nOutput: %s", output)
 	}
 }
 
