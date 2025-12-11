@@ -1,4 +1,4 @@
-project_name: kubectl-rl-top
+project_name: kubectl-rltop
 
 before:
   hooks:
@@ -37,7 +37,7 @@ archives:
     name_template: "{{ .ProjectName }}-{{ .Os }}-{{ .Arch }}"
 
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 
 snapshot:
   name_template: "{{ .Tag }}-next"
@@ -46,14 +46,14 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-      - '^chore:'
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
 
 release:
   github:
     owner: veditoid
-    name: kubectl-rl-top
+    name: kubectl-rltop
   draft: false
   prerelease: auto
   mode: replace
@@ -61,11 +61,10 @@ release:
 blobs:
   - provider: github
     owner: veditoid
-    name: kubectl-rl-top
+    name: kubectl-rltop
     ids:
       - kubectl-rltop-linux-amd64
       - kubectl-rltop-linux-arm64
       - kubectl-rltop-darwin-amd64
       - kubectl-rltop-darwin-arm64
       - kubectl-rltop-windows-amd64
-

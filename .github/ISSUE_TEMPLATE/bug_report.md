@@ -22,7 +22,7 @@ What actually happened.
 ## Environment
 - OS: [e.g., macOS 14.0, Linux Ubuntu 22.04]
 - Go version: [e.g., 1.25.1]
-- kubectl-rl-top version: [e.g., 0.1.0]
+- kubectl-rltop version: [e.g., 0.1.0]
 - Kubernetes version: [e.g., 1.28.0]
 - Cluster type: [e.g., minikube, GKE, EKS]
 

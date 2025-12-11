@@ -87,24 +87,6 @@ release: clean build-all ## Create release artifacts
 	@cd dist && zip -q ../release/$(BINARY_NAME)-windows-amd64.zip $(BINARY_NAME)-windows-amd64.exe
 	@echo "Release artifacts created in release/"
 
-krew-manifest: ## Validate Krew plugin manifest
-	@echo "Validating plugin.yaml..."
-	@which kubectl > /dev/null || (echo "Error: kubectl not found. Install from https://kubernetes.io/docs/tasks/tools/" && exit 1)
-	@if ! kubectl krew version > /dev/null 2>&1; then \
-		echo "Error: kubectl krew not found. Install from https://krew.sigs.k8s.io/"; \
-		echo "To install krew, run:"; \
-		echo "  (set -x; cd \"\$$(mktemp -d)\" &&"; \
-		echo "  OS=\"\$$(uname | tr '[:upper:]' '[:lower:]')\" &&"; \
-		echo "  ARCH=\"\$$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\\(arm\\)\\(64\\)\\?.*/\\1\\2/' -e 's/aarch64\$$/arm64/')\" &&"; \
-		echo "  KREW=\"krew-\$${OS}_\$${ARCH}\" &&"; \
-		echo "  curl -fsSLO \"https://github.com/kubernetes-sigs/krew/releases/latest/download/\$${KREW}.tar.gz\" &&"; \
-		echo "  tar zxvf \"\$${KREW}.tar.gz\" &&"; \
-		echo "  ./\"\$${KREW}\" install krew)"; \
-		exit 1; \
-	fi
-	@kubectl krew plugin lint plugin.yaml || true
-	@echo "Manifest validation complete"
-
 verify: test lint ## Run all verification checks
 	@echo "All checks passed!"
 

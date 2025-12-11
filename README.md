@@ -1,11 +1,20 @@
-# kubectl-rl-top
+# kubectl-rltop
 
-[![CI](https://github.com/veditoid/kubectl-rl-top/workflows/CI/badge.svg)](https://github.com/veditoid/kubectl-rl-top/actions)
+[![CI](https://github.com/veditoid/kubectl-rltop/workflows/CI/badge.svg)](https://github.com/veditoid/kubectl-rltop/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)](https://golang.org/)
 [![Krew](https://img.shields.io/badge/krew-plugin-blue.svg)](https://krew.sigs.k8s.io/)
 
 A kubectl krew plugin that displays pod resource usage (CPU and memory) along with resource requests and limits. It works like `kubectl top pods` but also shows the resource requests and limits defined in the pod specifications.
+
+Example output:
+
+```
+NAME                          CPU(cores)  CPU REQUEST  CPU LIMIT  MEMORY(bytes)  MEMORY REQUEST  MEMORY LIMIT
+my-pod-abc123                 100m        200m         500m       128Mi          256Mi           512Mi
+another-pod-xyz789            50m         100m         200m       64Mi           128Mi           256Mi
+pod-without-limits            25m         50m          <none>     32Mi           64Mi            <none>
+```
 
 ## Features
 
@@ -38,12 +47,12 @@ A kubectl krew plugin that displays pod resource usage (CPU and memory) along wi
 ### Using Krew (Recommended)
 
 ```bash
-kubectl krew install rl-top
+kubectl krew install rltop
 ```
 
 ### Manual Installation
 
-1. Download the latest release for your platform from the [Releases](https://github.com/veditoid/kubectl-rl-top/releases) page
+1. Download the latest release for your platform from the [Releases](https://github.com/veditoid/kubectl-rltop/releases) page
 2. Extract the archive
 3. Make the binary executable:
    ```bash
@@ -59,8 +68,8 @@ kubectl krew install rl-top
 **Note:** Building from source requires Go 1.25 or later due to dependencies on the Kubernetes client libraries.
 
 ```bash
-git clone https://github.com/veditoid/kubectl-rl-top.git
-cd kubectl-rl-top
+git clone https://github.com/veditoid/kubectl-rltop.git
+cd kubectl-rltop
 go build -o kubectl-rltop
 sudo mv kubectl-rltop /usr/local/bin/
 ```
@@ -170,15 +179,6 @@ The output displays a table with the following columns:
 - **MEMORY REQUEST**: Requested memory resources
 - **MEMORY LIMIT**: Memory limit
 
-Example output:
-
-```
-NAME                          CPU(cores)  CPU REQUEST  CPU LIMIT  MEMORY(bytes)  MEMORY REQUEST  MEMORY LIMIT
-my-pod-abc123                 100m        200m         500m       128Mi          256Mi           512Mi
-another-pod-xyz789            50m         100m         200m       64Mi           128Mi           256Mi
-pod-without-limits            25m         50m          <none>     32Mi           64Mi            <none>
-```
-
 ## How It Works
 
 1. Connects to your Kubernetes cluster using the kubeconfig
@@ -269,7 +269,6 @@ make lint-fix
 - `make clean` - Clean build artifacts
 - `make install` - Install the binary locally
 - `make release` - Create release artifacts
-- `make krew-manifest` - Validate Krew plugin manifest
 - `make verify` - Run all verification checks (test + lint)
 - `make version` - Show version information
 
@@ -309,7 +308,7 @@ When you push a new tag:
 ### Creating a Release
 
 1. Update the version in `VERSION` file
-2. Update `plugin.yaml` with the new version (the bot will update SHA256 checksums automatically)
+2. Update `.krew.yaml` with the new version (the bot will update SHA256 checksums automatically)
 3. Commit and push the changes
 4. Create and push a git tag:
    ```bash

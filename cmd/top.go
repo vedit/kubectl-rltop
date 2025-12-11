@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/veditoid/kubectl-rl-top/pkg"
+	"github.com/veditoid/kubectl-rltop/pkg"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	metricsclientset "k8s.io/metrics/pkg/client/clientset/versioned"

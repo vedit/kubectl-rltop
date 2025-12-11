@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/veditoid/kubectl-rl-top/pkg"
+	"github.com/veditoid/kubectl-rltop/pkg"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -292,7 +292,6 @@ func sortNodeData(data []CombinedNodeData, sortBy string) {
 	}
 }
 
-
 // NewNodeCommand creates a new node command
 func NewNodeCommand() *cobra.Command {
 	var labelSelector string
@@ -399,4 +398,3 @@ Examples:
 
 	return cmd
 }
-

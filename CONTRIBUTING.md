@@ -1,6 +1,6 @@
-# Contributing to kubectl-rl-top
+# Contributing to kubectl-rltop
 
-Thank you for your interest in contributing to kubectl-rl-top! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to kubectl-rltop! This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
@@ -54,8 +54,8 @@ Enhancement suggestions are welcome! Please open an issue with:
 
 1. Fork and clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/kubectl-rl-top.git
-   cd kubectl-rl-top
+   git clone https://github.com/YOUR_USERNAME/kubectl-rltop.git
+   cd kubectl-rltop
    ```
 
 2. Install dependencies:
@@ -134,5 +134,5 @@ If you have questions, please:
 - Check existing issues and pull requests
 - Review the documentation
 
-Thank you for contributing to kubectl-rl-top!
+Thank you for contributing to kubectl-rltop!
 

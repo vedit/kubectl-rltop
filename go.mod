@@ -1,4 +1,4 @@
-module github.com/veditoid/kubectl-rl-top
+module github.com/veditoid/kubectl-rltop
 
 go 1.25
 

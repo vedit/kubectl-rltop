@@ -91,16 +91,16 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: |
           if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            go build -o kubectl-rl-top.exe .
+            go build -o kubectl-rltop.exe .
           else
-            go build -o kubectl-rl-top .
+            go build -o kubectl-rltop .
           fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: kubectl-rl-top-${{ matrix.os }}-${{ matrix.goarch }}
-          path: ${{ matrix.os == 'windows-latest' && 'kubectl-rl-top.exe' || 'kubectl-rl-top' }}
+          name: kubectl-rltop-${{ matrix.os }}-${{ matrix.goarch }}
+          path: ${{ matrix.os == 'windows-latest' && 'kubectl-rltop.exe' || 'kubectl-rltop' }}
           if-no-files-found: error
 
   integration-test:

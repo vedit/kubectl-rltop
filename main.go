@@ -5,8 +5,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/veditoid/kubectl-rl-top/cmd"
 	"github.com/spf13/cobra"
+	"github.com/veditoid/kubectl-rltop/cmd"
 )
 
 var (
@@ -58,4 +58,3 @@ Usage:
 		os.Exit(1)
 	}
 }
-

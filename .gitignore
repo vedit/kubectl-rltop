@@ -1,8 +1,6 @@
 # Binaries
 kubectl-rltop
 kubectl-rltop.exe
-kubectl-rl-top
-kubectl-rl-top.exe
 *.exe
 *.exe~
 *.dll

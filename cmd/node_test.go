@@ -5,12 +5,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/veditoid/kubectl-rl-top/pkg"
+	"github.com/veditoid/kubectl-rltop/pkg"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
 
 func TestCombineNodeMetricsAndResources(t *testing.T) {
 	tests := []struct {
@@ -51,7 +50,7 @@ func TestCombineNodeMetricsAndResources(t *testing.T) {
 				},
 			},
 			showCapacity: false,
-			expected:    1,
+			expected:     1,
 		},
 		{
 			name: "node without resources",
@@ -75,7 +74,7 @@ func TestCombineNodeMetricsAndResources(t *testing.T) {
 				},
 			},
 			showCapacity: false,
-			expected:    1,
+			expected:     1,
 		},
 		{
 			name: "node without node info",
@@ -94,7 +93,7 @@ func TestCombineNodeMetricsAndResources(t *testing.T) {
 			},
 			nodes:        map[string]*corev1.Node{},
 			showCapacity: false,
-			expected:    1,
+			expected:     1,
 		},
 	}
 
@@ -233,4 +232,3 @@ func TestPrintNodeTable(t *testing.T) {
 
 // Note: TestRunNode is skipped here as it requires complex mocking of metricsclientset.Interface
 // and CheckMetricsAPIAvailable. It will be tested in integration tests instead.
-

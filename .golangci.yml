@@ -27,7 +27,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: github.com/veditoid/kubectl-rl-top
+    local-prefixes: github.com/veditoid/kubectl-rltop
   golint:
     min-confidence: 0
   lll:
@@ -80,4 +80,3 @@ issues:
         - funlen
   max-issues-per-linter: 0
   max-same-issues: 0
-
