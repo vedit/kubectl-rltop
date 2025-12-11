@@ -121,11 +121,14 @@ jobs:
           tar zxvf "${KREW}.tar.gz"
           ./"${KREW}" install krew
           echo "$HOME/.krew/bin" >> $GITHUB_PATH
+          # Verify installation
+          export PATH="$HOME/.krew/bin:$PATH"
+          krew version
 
       - name: Validate plugin manifest
         run: |
           export PATH="$HOME/.krew/bin:$PATH"
-          krew plugin lint plugin.yaml
+          $HOME/.krew/bin/krew plugin lint plugin.yaml
 
   integration-test:
     name: Integration Tests
