@@ -60,8 +60,6 @@ release:
 
 blobs:
   - provider: github
-    owner: veditoid
-    name: kubectl-rltop
     ids:
       - kubectl-rltop-linux-amd64
       - kubectl-rltop-linux-arm64
