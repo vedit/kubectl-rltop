@@ -1,0 +1,68 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: rl-top
+  version: v0.1.0
+spec:
+  version: v0.1.0
+  shortDescription: Display pod resource usage with requests and limits
+  description: |
+    Display pod resource usage (CPU and memory) along with resource requests and limits.
+    Works like 'kubectl top pods' but also shows the resource requests and limits
+    defined in the pod specifications.
+  homepage: https://github.com/veditoid/kubectl-rl-top
+  caveats: |
+    Requires metrics-server to be installed in your cluster.
+    The plugin needs access to the Metrics API and the core Kubernetes API.
+  platforms:
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: amd64
+    uri: https://github.com/veditoid/kubectl-rl-top/releases/download/v0.1.0/kubectl-rltop-darwin-amd64.tar.gz
+    sha256: PLACEHOLDER_SHA256
+    bin: kubectl-rltop
+    files:
+    - from: kubectl-rltop
+      to: .
+  - selector:
+      matchLabels:
+        os: darwin
+        arch: arm64
+    uri: https://github.com/veditoid/kubectl-rl-top/releases/download/v0.1.0/kubectl-rltop-darwin-arm64.tar.gz
+    sha256: PLACEHOLDER_SHA256
+    bin: kubectl-rltop
+    files:
+    - from: kubectl-rltop
+      to: .
+  - selector:
+      matchLabels:
+        os: linux
+        arch: amd64
+    uri: https://github.com/veditoid/kubectl-rl-top/releases/download/v0.1.0/kubectl-rltop-linux-amd64.tar.gz
+    sha256: PLACEHOLDER_SHA256
+    bin: kubectl-rltop
+    files:
+    - from: kubectl-rltop
+      to: .
+  - selector:
+      matchLabels:
+        os: linux
+        arch: arm64
+    uri: https://github.com/veditoid/kubectl-rl-top/releases/download/v0.1.0/kubectl-rltop-linux-arm64.tar.gz
+    sha256: PLACEHOLDER_SHA256
+    bin: kubectl-rltop
+    files:
+    - from: kubectl-rltop
+      to: .
+  - selector:
+      matchLabels:
+        os: windows
+        arch: amd64
+    uri: https://github.com/veditoid/kubectl-rl-top/releases/download/v0.1.0/kubectl-rltop-windows-amd64.zip
+    sha256: PLACEHOLDER_SHA256
+    bin: kubectl-rltop.exe
+    files:
+    - from: kubectl-rltop.exe
+      to: .
+

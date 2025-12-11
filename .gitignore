@@ -1,0 +1,53 @@
+# Binaries
+kubectl-rltop
+kubectl-rltop.exe
+kubectl-rl-top
+kubectl-rl-top.exe
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.txt
+
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+*.tar.gz
+*.zip
+
+# Release artifacts
+release/
+
+# Environment files
+.env
+.env.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Krew manifest with checksums (will be generated)
+plugin.yaml.checksum
+
