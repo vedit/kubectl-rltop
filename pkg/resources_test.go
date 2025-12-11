@@ -13,17 +13,17 @@ func TestFormatResourceQuantity(t *testing.T) {
 		isCPU    bool
 		want     string
 	}{
-		{"zero CPU", resource.Quantity{}, true, "<none>"},
-		{"zero memory", resource.Quantity{}, false, "<none>"},
+		{"zero CPU", resource.Quantity{}, true, "-"},
+		{"zero memory", resource.Quantity{}, false, "-"},
 		{"CPU millicores", resource.MustParse("100m"), true, "100m"},
-		{"CPU cores", resource.MustParse("2"), true, "2"},
+		{"CPU cores", resource.MustParse("2"), true, "2000m"},
 		{"memory bytes", resource.MustParse("1024"), false, "1024"},
 		{"memory Mi", resource.MustParse("128Mi"), false, "128Mi"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := formatResourceQuantity(tt.quantity, tt.isCPU)
+			got := FormatResourceQuantity(tt.quantity, tt.isCPU)
 			if got != tt.want {
 				t.Errorf("formatResourceQuantity(%v, %v) = %v, want %v", tt.quantity, tt.isCPU, got, tt.want)
 			}

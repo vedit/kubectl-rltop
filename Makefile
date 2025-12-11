@@ -37,9 +37,20 @@ build-all: ## Build binaries for all platforms
 	@GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o dist/$(BINARY_NAME)-windows-amd64.exe .
 	@echo "Build complete. Binaries are in dist/"
 
-test: ## Run tests
-	@echo "Running tests..."
+test: ## Run all tests (unit tests only)
+	@echo "Running unit tests..."
 	@go test -v ./...
+
+test-unit: ## Run unit tests only
+	@echo "Running unit tests..."
+	@go test -v ./pkg/... ./cmd/...
+
+test-integration: ## Run integration tests (requires k3s)
+	@echo "Running integration tests..."
+	@echo "Note: This requires k3s to be installed and running"
+	@go test -v -tags=integration ./test/integration/... -timeout 10m
+
+test-all: test-unit test-integration ## Run both unit and integration tests
 
 test-coverage: ## Run tests with coverage
 	@echo "Running tests with coverage..."

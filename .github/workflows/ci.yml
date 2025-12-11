@@ -124,3 +124,41 @@ jobs:
       - name: Validate plugin manifest
         run: krew plugin lint plugin.yaml
 
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Install k3s
+        run: |
+          curl -sfL https://get.k3s.io | sh -
+          sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+          mkdir -p ~/.kube
+          sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+          sudo chown $USER ~/.kube/config
+
+      - name: Wait for k3s to be ready
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          timeout 120 bash -c 'until kubectl get nodes; do sleep 2; done'
+
+      - name: Wait for metrics-server
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          kubectl wait --for=condition=ready pod -l k8s-app=metrics-server -n kube-system --timeout=120s || true
+
+      - name: Build binary
+        run: go build -o kubectl-rltop .
+
+      - name: Run integration tests
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          go test -v -tags=integration ./test/integration/... -timeout 10m
+

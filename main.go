@@ -18,17 +18,18 @@ var (
 func main() {
 	rootCmd := &cobra.Command{
 		Use:   "kubectl-rltop",
-		Short: "Display pod resource usage with requests and limits",
-		Long: `kubectl-rltop is a kubectl plugin that displays pod resource usage
-(CPU and memory) along with resource requests and limits.
+		Short: "Display resource usage with requests and limits for pods and nodes",
+		Long: `kubectl-rltop is a kubectl plugin that displays resource usage (CPU and memory)
+along with resource requests and limits for pods and nodes.
 
-It works like 'kubectl top pods' but also shows the resource requests and limits
-defined in the pod specifications.
+It works like 'kubectl top pods' and 'kubectl top nodes' but also shows the resource
+requests and limits defined in pod specifications.
 
 Usage:
-  kubectl rltop pod [flags]
-  kubectl rltop pods [flags]
-  kubectl rltop po [flags]`,
+  kubectl rltop pod [flags]    # Display pod resource usage with requests/limits
+  kubectl rltop node [flags]   # Display node resource usage with aggregated requests/limits
+  kubectl rltop pods [flags]   # Alias for pod
+  kubectl rltop nodes [flags]  # Alias for node`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
@@ -48,6 +49,8 @@ Usage:
 
 	// Add the pod subcommand (with aliases: pods, po)
 	rootCmd.AddCommand(cmd.NewPodCommand())
+	// Add the node subcommand (with aliases: nodes, no)
+	rootCmd.AddCommand(cmd.NewNodeCommand())
 	rootCmd.AddCommand(versionCmd)
 
 	if err := rootCmd.Execute(); err != nil {

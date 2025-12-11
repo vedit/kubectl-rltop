@@ -103,20 +103,20 @@ func GetPodResources(ctx context.Context, clientset kubernetes.Interface, namesp
 		resources = append(resources, PodResources{
 			Name:             pod.Name,
 			Namespace:        pod.Namespace,
-			CPURequest:       formatResourceQuantity(totalCPURequest, true),
-			CPULimit:         formatResourceQuantity(totalCPULimit, true),
+			CPURequest:       FormatResourceQuantity(totalCPURequest, true),
+			CPULimit:         FormatResourceQuantity(totalCPULimit, true),
 			MemoryRequest:    totalMemoryRequest,
 			MemoryLimit:      totalMemoryLimit,
-			MemoryRequestStr: formatResourceQuantity(totalMemoryRequest, false),
-			MemoryLimitStr:   formatResourceQuantity(totalMemoryLimit, false),
+			MemoryRequestStr: FormatResourceQuantity(totalMemoryRequest, false),
+			MemoryLimitStr:   FormatResourceQuantity(totalMemoryLimit, false),
 		})
 	}
 
 	return resources, nil
 }
 
-// formatResourceQuantity formats a resource.Quantity to a human-readable string
-func formatResourceQuantity(q resource.Quantity, isCPU bool) string {
+// FormatResourceQuantity formats a resource.Quantity to a human-readable string
+func FormatResourceQuantity(q resource.Quantity, isCPU bool) string {
 	if q.IsZero() {
 		return "-"
 	}

@@ -9,12 +9,22 @@ A kubectl krew plugin that displays pod resource usage (CPU and memory) along wi
 
 ## Features
 
+### Pod Command
 - Display pod CPU and memory usage (from Metrics API)
 - Display CPU and memory requests and limits (from pod specs)
 - Support namespace filtering (`-n` or `--namespace`)
 - Support label selector filtering (`-l` or `--selector`)
+- Support all flags from `kubectl top pods`
 - Works with all namespaces by default
 - Handles pods without defined requests/limits gracefully
+
+### Node Command
+- Display node CPU and memory usage (from Metrics API)
+- Display aggregated total CPU and memory requests and limits from all pods on each node
+- Show CPU% and MEMORY% (based on allocatable or capacity)
+- Support label selector filtering (`-l` or `--selector`)
+- Support all flags from `kubectl top node`
+- Support node name as argument
 
 ## Prerequisites
 
@@ -97,6 +107,55 @@ kubectl rltop pods --selector app=myapp,version=v1
 
 ```bash
 kubectl rltop pod -n production -l app=backend
+```
+
+## Node Command Usage
+
+You can use `node`, `nodes`, or `no` as the command name, just like kubectl:
+
+```bash
+kubectl rltop node    # Full form
+kubectl rltop nodes   # Plural form
+kubectl rltop no      # Short form
+```
+
+### Basic Node Usage
+
+Display resource usage and aggregated requests/limits for all nodes:
+
+```bash
+kubectl rltop node
+```
+
+### Show Specific Node
+
+```bash
+kubectl rltop node NODE_NAME
+```
+
+### Filter by Label Selector
+
+```bash
+kubectl rltop node -l node-role.kubernetes.io/worker
+```
+
+### Sort Nodes
+
+```bash
+kubectl rltop node --sort-by=cpu
+kubectl rltop node --sort-by=memory
+```
+
+### Show Capacity Instead of Allocatable
+
+```bash
+kubectl rltop node --show-capacity
+```
+
+### No Headers
+
+```bash
+kubectl rltop node --no-headers
 ```
 
 ## Output Format
