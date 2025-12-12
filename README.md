@@ -1,6 +1,6 @@
 # kubectl-rltop
 
-[![CI](https://github.com/veditoid/kubectl-rltop/workflows/CI/badge.svg)](https://github.com/veditoid/kubectl-rltop/actions)
+[![CI](https://github.com/vedit/kubectl-rltop/workflows/CI/badge.svg)](https://github.com/vedit/kubectl-rltop/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)](https://golang.org/)
 [![Krew](https://img.shields.io/badge/krew-plugin-blue.svg)](https://krew.sigs.k8s.io/)
