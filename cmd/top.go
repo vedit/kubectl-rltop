@@ -326,11 +326,6 @@ Examples:
   # Show metrics for the pods defined by label name=myLabel
   kubectl rltop pod -l name=myLabel`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Handle -A/--all-namespaces flag
-			if allNamespaces {
-				namespace = ""
-			}
-
 			// Extract pod names from args
 			var podNames []string
 			if len(args) > 0 {
@@ -350,6 +345,22 @@ Examples:
 				loadingRules,
 				configOverrides,
 			)
+
+			// Get namespace from context if not specified
+			if !allNamespaces && namespace == "" {
+				ns, _, err := clientConfig.Namespace()
+				if err == nil && ns != "" {
+					namespace = ns
+				} else {
+					// Default to "default" namespace if context doesn't have one
+					namespace = "default"
+				}
+			}
+
+			// Handle -A/--all-namespaces flag (must be after namespace detection)
+			if allNamespaces {
+				namespace = ""
+			}
 
 			// Get REST config
 			config, err := clientConfig.ClientConfig()
@@ -409,7 +420,7 @@ Examples:
 	}
 
 	// Add all flags matching kubectl top pods
-	cmd.Flags().StringVarP(&namespace, "namespace", "n", "", "Namespace to query (default: all namespaces)")
+	cmd.Flags().StringVarP(&namespace, "namespace", "n", "", "Namespace to query (default: namespace from current context, or 'default')")
 	cmd.Flags().BoolVarP(&allNamespaces, "all-namespaces", "A", false,
 		"If present, list the requested object(s) across all namespaces. "+
 			"Namespace in current context is ignored even if specified with --namespace.")

@@ -194,7 +194,7 @@ func printNodeTable(data []CombinedNodeData, noHeaders bool) {
 	// Calculate column widths
 	nameWidth := 50
 	cpuWidth := 12
-	percentWidth := 6
+	percentWidth := 7
 	memWidth := 15
 
 	for _, d := range data {
