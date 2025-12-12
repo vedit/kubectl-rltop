@@ -50,9 +50,6 @@ changelog:
       - "^chore:"
 
 release:
-  github:
-    owner: veditoid
-    name: kubectl-rltop
   draft: false
   prerelease: auto
   mode: replace
