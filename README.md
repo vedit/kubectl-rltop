@@ -5,7 +5,7 @@
 [![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go)](https://golang.org/)
 [![Krew](https://img.shields.io/badge/krew-plugin-blue.svg)](https://krew.sigs.k8s.io/)
 
-A kubectl krew plugin that displays pod resource usage (CPU and memory) along with resource requests and limits. It works like `kubectl top pods` but also shows the resource requests and limits defined in the pod specifications.
+A kubectl krew plugin that displays pod resource usage (CPU and memory) along with resource requests and limits. It works like `kubectl top` but also shows the resource requests and limits defined in the pod specifications.
 
 Example output:
 
