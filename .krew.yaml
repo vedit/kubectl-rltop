@@ -19,36 +19,35 @@ spec:
         matchLabels:
           os: darwin
           arch: amd64
-      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-darwin-amd64.tar.gz" .TagName }}
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-darwin-amd64.tar.gz" .TagName | indent 6 }}
       bin: kubectl-rltop
     - selector:
         matchLabels:
           os: darwin
           arch: arm64
-
-      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-darwin-arm64.tar.gz" .TagName }}
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-darwin-arm64.tar.gz" .TagName | indent 6 }}
       bin: kubectl-rltop
     - selector:
         matchLabels:
           os: linux
           arch: amd64
-      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-linux-amd64.tar.gz" .TagName }}
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-linux-amd64.tar.gz" .TagName | indent 6 }}
       bin: kubectl-rltop
     - selector:
         matchLabels:
           os: linux
           arch: arm64
-      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-linux-arm64.tar.gz" .TagName }}
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-linux-arm64.tar.gz" .TagName | indent 6 }}
       bin: kubectl-rltop
     - selector:
         matchLabels:
           os: windows
           arch: amd64
-      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-amd64.tar.gz" .TagName }}
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-amd64.tar.gz" .TagName | indent 6 }}
       bin: kubectl-rltop.exe
     - selector:
         matchLabels:
           os: windows
           arch: arm64
-      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-arm64.tar.gz" .TagName }}
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-arm64.tar.gz" .TagName | indent 6 }}
       bin: kubectl-rltop.exe
