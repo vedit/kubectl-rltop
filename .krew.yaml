@@ -44,11 +44,11 @@ spec:
         matchLabels:
           os: windows
           arch: amd64
-      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-amd64.zip" .TagName }}
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-amd64.tar.gz" .TagName }}
       bin: kubectl-rltop.exe
     - selector:
         matchLabels:
           os: windows
           arch: arm64
-      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-arm64.zip" .TagName }}
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-arm64.tar.gz" .TagName }}
       bin: kubectl-rltop.exe

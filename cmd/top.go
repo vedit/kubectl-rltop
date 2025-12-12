@@ -420,7 +420,8 @@ Examples:
 	}
 
 	// Add all flags matching kubectl top pods
-	cmd.Flags().StringVarP(&namespace, "namespace", "n", "", "Namespace to query (default: namespace from current context, or 'default')")
+	cmd.Flags().StringVarP(&namespace, "namespace", "n", "",
+		"Namespace to query (default: namespace from current context, or 'default')")
 	cmd.Flags().BoolVarP(&allNamespaces, "all-namespaces", "A", false,
 		"If present, list the requested object(s) across all namespaces. "+
 			"Namespace in current context is ignored even if specified with --namespace.")
