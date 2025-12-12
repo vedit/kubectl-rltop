@@ -2,67 +2,53 @@ apiVersion: krew.googlecontainertools.github.com/v1alpha2
 kind: Plugin
 metadata:
   name: rltop
-  version: v0.1.0
+  version: {{ .TagName }}
 spec:
-  version: v0.1.0
+  version: {{ .TagName }}
   shortDescription: Display pod resource usage with requests and limits
   description: |
     Display pod resource usage (CPU and memory) along with resource requests and limits.
     Works like 'kubectl top pods' but also shows the resource requests and limits
     defined in the pod specifications.
-  homepage: https://github.com/veditoid/kubectl-rltop
+  homepage: https://github.com/vedit/kubectl-rltop
   caveats: |
     Requires metrics-server to be installed in your cluster.
     The plugin needs access to the Metrics API and the core Kubernetes API.
   platforms:
-  - selector:
-      matchLabels:
-        os: darwin
-        arch: amd64
-    uri: https://github.com/veditoid/kubectl-rltop/releases/download/v0.1.0/kubectl-rltop-darwin-amd64.tar.gz
-    sha256: PLACEHOLDER_SHA256
-    bin: kubectl-rltop
-    files:
-    - from: kubectl-rltop
-      to: .
-  - selector:
-      matchLabels:
-        os: darwin
-        arch: arm64
-    uri: https://github.com/veditoid/kubectl-rltop/releases/download/v0.1.0/kubectl-rltop-darwin-arm64.tar.gz
-    sha256: PLACEHOLDER_SHA256
-    bin: kubectl-rltop
-    files:
-    - from: kubectl-rltop
-      to: .
-  - selector:
-      matchLabels:
-        os: linux
-        arch: amd64
-    uri: https://github.com/veditoid/kubectl-rltop/releases/download/v0.1.0/kubectl-rltop-linux-amd64.tar.gz
-    sha256: PLACEHOLDER_SHA256
-    bin: kubectl-rltop
-    files:
-    - from: kubectl-rltop
-      to: .
-  - selector:
-      matchLabels:
-        os: linux
-        arch: arm64
-    uri: https://github.com/veditoid/kubectl-rltop/releases/download/v0.1.0/kubectl-rltop-linux-arm64.tar.gz
-    sha256: PLACEHOLDER_SHA256
-    bin: kubectl-rltop
-    files:
-    - from: kubectl-rltop
-      to: .
-  - selector:
-      matchLabels:
-        os: windows
-        arch: amd64
-    uri: https://github.com/veditoid/kubectl-rltop/releases/download/v0.1.0/kubectl-rltop-windows-amd64.zip
-    sha256: PLACEHOLDER_SHA256
-    bin: kubectl-rltop.exe
-    files:
-    - from: kubectl-rltop.exe
-      to: .
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: amd64
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-darwin-amd64.tar.gz" .TagName }}
+      bin: kubectl-rltop
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: arm64
 
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-darwin-arm64.tar.gz" .TagName }}
+      bin: kubectl-rltop
+    - selector:
+        matchLabels:
+          os: linux
+          arch: amd64
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-linux-amd64.tar.gz" .TagName }}
+      bin: kubectl-rltop
+    - selector:
+        matchLabels:
+          os: linux
+          arch: arm64
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-linux-arm64.tar.gz" .TagName }}
+      bin: kubectl-rltop
+    - selector:
+        matchLabels:
+          os: windows
+          arch: amd64
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-amd64.zip" .TagName }}
+      bin: kubectl-rltop.exe
+    - selector:
+        matchLabels:
+          os: windows
+          arch: arm64
+      {{addURIAndSha "https://github.com/vedit/kubectl-rltop/releases/download/{{ .TagName }}/kubectl-rltop-windows-arm64.zip" .TagName }}
+      bin: kubectl-rltop.exe
