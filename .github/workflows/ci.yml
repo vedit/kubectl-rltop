@@ -115,28 +115,21 @@ jobs:
         with:
           go-version: "1.25"
 
-      - name: Install k3s
+      - name: Install kind
         run: |
-          curl -sfL https://get.k3s.io | sh -
-          sudo chmod 644 /etc/rancher/k3s/k3s.yaml
-          mkdir -p ~/.kube
-          sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-          sudo chown $USER ~/.kube/config
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
 
-      - name: Wait for k3s to be ready
+      - name: Install kubectl
         run: |
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-          timeout 120 bash -c 'until kubectl get nodes; do sleep 2; done'
-
-      - name: Wait for metrics-server
-        run: |
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-          kubectl wait --for=condition=ready pod -l k8s-app=metrics-server -n kube-system --timeout=120s || true
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
 
       - name: Build binary
         run: go build -o kubectl-rltop .
 
       - name: Run integration tests
         run: |
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           go test -v -tags=integration ./test/integration/... -timeout 10m
