@@ -13,7 +13,7 @@ Example output:
 NAME                          CPU(cores)  CPU REQUEST  CPU LIMIT  MEMORY(bytes)  MEMORY REQUEST  MEMORY LIMIT
 my-pod-abc123                 100m        200m         500m       128Mi          256Mi           512Mi
 another-pod-xyz789            50m         100m         200m       64Mi           128Mi           256Mi
-pod-without-limits            25m         50m          <none>     32Mi           64Mi            <none>
+pod-without-limits            25m         50m          -          32Mi           64Mi            -     
 ```
 
 ## Features
@@ -34,6 +34,9 @@ pod-without-limits            25m         50m          <none>     32Mi          
 - Support label selector filtering (`-l` or `--selector`)
 - Support all flags from `kubectl top node`
 - Support node name as argument
+
+### General
+- Converts request/limit units to the actual consumption units for easier comparison
 
 ## Prerequisites
 
