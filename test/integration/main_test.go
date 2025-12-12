@@ -23,6 +23,7 @@ var (
 	kubeconfigPath string
 	clientset      kubernetes.Interface
 	testNamespace  = "rltop-test"
+	clusterName    = "kubectl-rltop-test"
 )
 
 func TestMain(m *testing.M) {
@@ -42,17 +43,22 @@ func TestMain(m *testing.M) {
 }
 
 func setup() error {
-	// Check if k3s is already running
-	if isK3sRunning() {
-		fmt.Println("k3s is already running, using existing cluster")
-		kubeconfigPath = "/etc/rancher/k3s/k3s.yaml"
+	// Check if kind cluster already exists
+	if isKindClusterExists() {
+		fmt.Printf("kind cluster '%s' already exists, using existing cluster\n", clusterName)
 	} else {
-		// Install and start k3s
-		fmt.Println("Installing k3s...")
-		if err := installK3s(); err != nil {
-			return fmt.Errorf("failed to install k3s: %w", err)
+		// Create kind cluster
+		fmt.Printf("Creating kind cluster '%s'...\n", clusterName)
+		if err := createKindCluster(); err != nil {
+			return fmt.Errorf("failed to create kind cluster: %w", err)
 		}
-		kubeconfigPath = "/etc/rancher/k3s/k3s.yaml"
+	}
+
+	// Get kubeconfig path for kind cluster
+	var err error
+	kubeconfigPath, err = getKindKubeconfig()
+	if err != nil {
+		return fmt.Errorf("failed to get kind kubeconfig: %w", err)
 	}
 
 	// Wait for cluster to be ready
@@ -108,36 +114,128 @@ func teardown() {
 		// Clean up test namespace
 		clientset.CoreV1().Namespaces().Delete(ctx, testNamespace, metav1.DeleteOptions{})
 	}
+	// Note: We don't delete the kind cluster here to allow reuse
+	// Users can delete it manually with: kind delete cluster --name kubectl-rltop-test
 }
 
-func isK3sRunning() bool {
-	cmd := exec.Command("systemctl", "is-active", "--quiet", "k3s")
-	return cmd.Run() == nil
+func isKindClusterExists() bool {
+	cmd := exec.Command("kind", "get", "clusters")
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+	return strings.Contains(string(output), clusterName)
 }
 
-func installK3s() error {
-	// Check if k3s is already installed
-	if _, err := exec.LookPath("k3s"); err == nil {
-		// k3s is installed, try to start it
-		cmd := exec.Command("sudo", "systemctl", "start", "k3s")
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("failed to start k3s: %w", err)
-		}
-		return nil
+func createKindCluster() error {
+	// Check if kind is installed
+	if _, err := exec.LookPath("kind"); err != nil {
+		return fmt.Errorf("kind is not installed. Please install it: https://kind.sigs.k8s.io/docs/user/quick-start/#installation")
 	}
 
-	// Install k3s
-	cmd := exec.Command("sh", "-c", "curl -sfL https://get.k3s.io | sh -")
+	// Check if Docker is running
+	if err := checkDockerRunning(); err != nil {
+		return fmt.Errorf("docker is not running: %w. Please start Docker", err)
+	}
+
+	// Create kind cluster with metrics-server enabled
+	// We use a config that enables metrics-server
+	config := `kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  kubeadmConfigPatches:
+  - |
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        node-labels: "ingress-ready=true"
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP`
+
+	// Write config to temp file
+	tmpfile, err := os.CreateTemp("", "kind-config-*.yaml")
+	if err != nil {
+		return fmt.Errorf("failed to create temp config file: %w", err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	if _, err := tmpfile.WriteString(config); err != nil {
+		return fmt.Errorf("failed to write config: %w", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		return fmt.Errorf("failed to close config file: %w", err)
+	}
+
+	// Create cluster
+	cmd := exec.Command("kind", "create", "cluster", "--name", clusterName, "--config", tmpfile.Name())
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to install k3s: %w", err)
+		return fmt.Errorf("failed to create kind cluster: %w", err)
 	}
 
-	// Wait a bit for k3s to start
-	time.Sleep(5 * time.Second)
+	// Get kubeconfig for the newly created cluster
+	kubeconfig, err := getKindKubeconfig()
+	if err != nil {
+		return fmt.Errorf("failed to get kubeconfig after cluster creation: %w", err)
+	}
+
+	// Install metrics-server
+	fmt.Println("Installing metrics-server...")
+	cmd = exec.Command("kubectl", "apply", "-f", "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml")
+	cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", kubeconfig))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to install metrics-server: %w", err)
+	}
+
+	// Patch metrics-server to work in kind (disable TLS verification)
+	cmd = exec.Command("kubectl", "patch", "deployment", "metrics-server", "-n", "kube-system",
+		"--type", "json", "-p", `[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]`)
+	cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", kubeconfig))
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to patch metrics-server: %w", err)
+	}
 
 	return nil
+}
+
+func getKindKubeconfig() (string, error) {
+	// Get kubeconfig from kind
+	cmd := exec.Command("kind", "get", "kubeconfig", "--name", clusterName)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("failed to get kubeconfig: %w", err)
+	}
+
+	// Write to temp file
+	tmpfile, err := os.CreateTemp("", "kubeconfig-*.yaml")
+	if err != nil {
+		return "", fmt.Errorf("failed to create temp kubeconfig file: %w", err)
+	}
+
+	if _, err := tmpfile.Write(output); err != nil {
+		return "", fmt.Errorf("failed to write kubeconfig: %w", err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		return "", fmt.Errorf("failed to close kubeconfig file: %w", err)
+	}
+
+	return tmpfile.Name(), nil
+}
+
+func checkDockerRunning() error {
+	cmd := exec.Command("docker", "info")
+	return cmd.Run()
 }
 
 func waitForClusterReady(timeout time.Duration) error {
@@ -150,6 +248,7 @@ func waitForClusterReady(timeout time.Duration) error {
 			return fmt.Errorf("timeout waiting for cluster to be ready")
 		default:
 			cmd := exec.Command("kubectl", "--kubeconfig", kubeconfigPath, "get", "nodes", "--no-headers")
+			cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", kubeconfigPath))
 			if err := cmd.Run(); err == nil {
 				return nil
 			}
@@ -169,7 +268,10 @@ func waitForMetricsServer(timeout time.Duration) error {
 		default:
 			cmd := exec.Command("kubectl", "--kubeconfig", kubeconfigPath, "wait", "--for=condition=ready",
 				"pod", "-l", "k8s-app=metrics-server", "-n", "kube-system", "--timeout=30s")
+			cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", kubeconfigPath))
 			if err := cmd.Run(); err == nil {
+				// Wait a bit more for metrics to be available
+				time.Sleep(5 * time.Second)
 				return nil
 			}
 			time.Sleep(5 * time.Second)

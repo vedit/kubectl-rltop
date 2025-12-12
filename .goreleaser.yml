@@ -1,3 +1,5 @@
+version: 2
+
 project_name: kubectl-rltop
 
 before:
@@ -28,9 +30,6 @@ builds:
 
 archives:
   - id: default
-    format_overrides:
-      - goos: windows
-        format: zip
     files:
       - README.md
       - LICENSE
@@ -40,7 +39,7 @@ checksum:
   name_template: "checksums.txt"
 
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  # name_template is deprecated, using default
 
 changelog:
   sort: asc
@@ -60,6 +59,7 @@ release:
 
 blobs:
   - provider: github
+    bucket: releases
     ids:
       - kubectl-rltop-linux-amd64
       - kubectl-rltop-linux-arm64

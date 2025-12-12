@@ -45,10 +45,28 @@ test-unit: ## Run unit tests only
 	@echo "Running unit tests..."
 	@go test -v ./pkg/... ./cmd/...
 
-test-integration: ## Run integration tests (requires k3s)
+test-integration: ## Run integration tests (requires kind and Docker)
 	@echo "Running integration tests..."
-	@echo "Note: This requires k3s to be installed and running"
+	@echo "Note: This requires kind and Docker to be installed and running"
 	@go test -v -tags=integration ./test/integration/... -timeout 10m
+
+kind-create: ## Create kind cluster for integration tests
+	@echo "Creating kind cluster for integration tests..."
+	@kind create cluster --name kubectl-rltop-test || true
+	@echo "Installing metrics-server..."
+	@kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml || true
+	@kubectl patch deployment metrics-server -n kube-system --type json -p '[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]' || true
+	@echo "Waiting for metrics-server to be ready..."
+	@kubectl wait --for=condition=ready pod -l k8s-app=metrics-server -n kube-system --timeout=120s || true
+	@echo "Kind cluster is ready!"
+
+kind-delete: ## Delete kind cluster used for integration tests
+	@echo "Deleting kind cluster..."
+	@kind delete cluster --name kubectl-rltop-test || true
+	@echo "Kind cluster deleted"
+
+kind-status: ## Check status of kind cluster
+	@kind get clusters | grep -q kubectl-rltop-test && echo "Cluster exists" || echo "Cluster does not exist"
 
 test-all: test-unit test-integration ## Run both unit and integration tests
 

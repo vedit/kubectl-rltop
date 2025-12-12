@@ -242,15 +242,62 @@ This will create binaries in the `dist/` directory for:
 
 ### Testing
 
-Run tests:
+Run unit tests:
 ```bash
-make test
+make test-unit
 ```
 
 Run tests with coverage:
 ```bash
 make test-coverage
 ```
+
+#### Integration Tests
+
+Integration tests require a Kubernetes cluster. The tests use [kind](https://kind.sigs.k8s.io/) (Kubernetes in Docker) which works on Mac, Linux, and Windows.
+
+**Prerequisites:**
+- [Docker](https://www.docker.com/) installed and running
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) installed
+
+**Install kind:**
+```bash
+# macOS
+brew install kind
+
+# Linux
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+
+# Windows (using Chocolatey)
+choco install kind
+```
+
+**Run integration tests:**
+```bash
+# The tests will automatically create a kind cluster if it doesn't exist
+make test-integration
+```
+
+**Manual cluster management:**
+```bash
+# Create kind cluster manually (optional)
+make kind-create
+
+# Check cluster status
+make kind-status
+
+# Delete kind cluster
+make kind-delete
+```
+
+The integration tests will:
+1. Create a kind cluster named `kubectl-rltop-test` (if it doesn't exist)
+2. Install metrics-server
+3. Create test pods with known resource requests/limits
+4. Run all integration tests
+5. Clean up test resources (but keep the cluster for reuse)
 
 ### Linting
 
