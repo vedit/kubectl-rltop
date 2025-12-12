@@ -141,7 +141,9 @@ jobs:
       KREW_VERSION: v0.4.5
       GO111MODULE: on
     steps:
-
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
     - name: Setup Go
       uses: actions/setup-go@v3
       with:
@@ -182,7 +184,6 @@ jobs:
         go install sigs.k8s.io/krew/cmd/validate-krew-manifest@${KREW_VERSION}
 
     - name: Validate updated plugin manifests
-      if: github.event_name == 'pull_request'
       run : |
         set -x
         set -euo pipefail
